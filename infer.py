@@ -64,6 +64,8 @@ def transcribe(job):
     datatype = job['input'].get('type', None)
     model_name = job['input'].get('model', 'whisper-large-v3')
     is_streaming = job['input'].get('streaming', False)
+    language_ = job['input'].get('language', 'he')
+    
 
     if not datatype:
         yield { "error" : "datatype field not provided. Should be 'blob' or 'url'." }
@@ -89,7 +91,7 @@ def transcribe(job):
             yield { "error" : f"Error downloading data from {job['input']['url']}" }
             return
 
-    stream_gen = transcribe_core(model, audio_file)
+    stream_gen = transcribe_core(model, audio_file,language_)
 
     if is_streaming:
         for entry in stream_gen:
@@ -98,12 +100,12 @@ def transcribe(job):
         result = [entry for entry in stream_gen]
         yield { 'result' : result }
 
-def transcribe_core(model, audio_file):
+def transcribe_core(model, audio_file,language_):
     print('Transcribing...')
 
     ret = { 'segments' : [] }
 
-    segs, dummy = model.transcribe(audio_file, language='he', word_timestamps=True)
+    segs, dummy = model.transcribe(audio_file, language=language_, word_timestamps=True)
     for s in segs:
         words = []
         for w in s.words:
