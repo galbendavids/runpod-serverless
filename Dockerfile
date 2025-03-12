@@ -1,22 +1,21 @@
-# Include Python
-from python:3.11.1-buster
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
 
-# Define your working directory
-WORKDIR /
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3-pip \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install runpod
-RUN pip install runpod
-RUN pip install torch==2.3.1
-RUN pip install faster-whisper
+WORKDIR /app
 
-RUN python3 -c 'import faster_whisper; m = faster_whisper.WhisperModel("ivrit-ai/faster-whisper-v2-d4")'
-#RUN python3 -c 'import faster_whisper; m = faster_whisper.WhisperModel("openai/whisper-large-v3")'
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Add your file
-ADD infer.py .
+# Download Whisper models during the build process
+RUN python3 -c 'import faster_whisper; m1 = faster_whisper.WhisperModel("whisper-large-v3"); m2 = faster_whisper.WhisperModel("ivrit-ai/faster-whisper-v2-d4")'
 
-ENV LD_LIBRARY_PATH="/usr/local/lib/python3.11/site-packages/nvidia/cudnn/lib:/usr/local/lib/python3.11/site-packages/nvidia/cublas/lib"
+COPY infer.py .
 
-# Call your file when your container starts
-CMD [ "python", "-u", "/infer.py" ]
+ENV LD_LIBRARY_PATH="/usr/local/nvidia/lib:/usr/local/nvidia/lib64"
 
+CMD ["python", "-u", "infer.py"]
