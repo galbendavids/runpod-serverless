@@ -62,7 +62,7 @@ def download_file(url, max_size_bytes, output_filename, api_key=None):
 
 def transcribe(job):
     datatype = job['input'].get('type', None)
-    model_name = job['input'].get('model', 'large-v2')
+    model_name = job['input'].get('model', 'whisper-large-v3')
     is_streaming = job['input'].get('streaming', False)
 
     if not datatype:
