@@ -10,7 +10,7 @@ RUN pip install torch==2.3.1
 RUN pip install faster-whisper
 
 RUN python3 -c 'import faster_whisper; m = faster_whisper.WhisperModel("ivrit-ai/faster-whisper-v2-d4")'
-RUN python3 -c 'import faster_whisper; m = faster_whisper.WhisperModel("ivrit-ai/whisper-large-v3-turbo-ct2")'
+RUN python3 -c 'import faster_whisper; m = faster_whisper.WhisperModel("openai/whisper-large-v3")'
 
 # Add your file
 ADD infer.py .
